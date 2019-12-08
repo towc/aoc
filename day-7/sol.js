@@ -46,14 +46,13 @@ const codeToArgNum = {
   99: 0,
 };
 
-const runCode = (ns, minputs) => {
-  ns = [...ns];
-
-  let minputCounter = 0;
+const runCode = (state, minputs) => {
+  let { ns, i } = state;
 
   const out = [];
 
-  let i = 0;
+  let exited = false;
+
   let sec = 10000;
   while (--sec > 0) {
     const s = ns[i].toString().split('');
@@ -91,9 +90,11 @@ const runCode = (ns, minputs) => {
       const [a, b, res] = params;
       ns[res] = a * b;
     } else if (code === 3) {
+      if (minputs.length === 0) {
+        break;
+      }
       const [res] = params;
-      ns[res] = minputs[minputCounter];
-      ++minputCounter;
+      ns[res] = minputs.shift();
     } else if (code === 4) {
       const [res] = params;
       out.push(modes[0] ? res : ns[res]);
@@ -116,6 +117,7 @@ const runCode = (ns, minputs) => {
       const [a, b, res] = params;
       ns[res] = a === b ? 1 : 0;
     } else if (code === 99) {
+      exited = true;
       break;
     } else {
       throw `unknown code ${code}`;
@@ -124,12 +126,14 @@ const runCode = (ns, minputs) => {
     i += paramNum + 1;
   }
 
-  return out[out.length - 1];
+  state.i = i;
+
+  return { exited, lastOut: out[out.length - 1] };
 };
 
-const combs = (max = 5) => {
+const combs = (max = 5, base = 0) => {
   const acc = [];
-  combsr(acc, [], new Set(Array(max).fill().map((_, i) => i)));
+  combsr(acc, [], new Set(Array(max).fill().map((_, i) => i + base)));
   return acc;
 };
 const combsr = (acc, path, canPick) => {
@@ -145,16 +149,17 @@ const combsr = (acc, path, canPick) => {
 };
 
 const sol1 = (input) => {
-  const ns = processInput(input);
+  const accs = 5;
 
   let max = -Infinity;
-  for (const comb of combs(5)) {
+  for (const comb of combs(accs)) {
+    const nss = Array(accs).fill().map(() => ({ ns: processInput(input), i: 0 }));
+
     let out = 0;
-    out = runCode(ns, [comb[0], out]);
-    out = runCode(ns, [comb[1], out]);
-    out = runCode(ns, [comb[2], out]);
-    out = runCode(ns, [comb[3], out]);
-    out = runCode(ns, [comb[4], out]);
+
+    for (let i = 0; i < accs; ++i) {
+      out = runCode(nss[i], [comb[i], out]).lastOut;
+    }
 
     if (out > max) {
       max = out;
@@ -164,7 +169,38 @@ const sol1 = (input) => {
   return max;
 };
 
-const sol2 = input => sol1(input, 5);
+const sol2 = (input) => {
+  const accs = 5;
+
+  let max = -Infinity;
+  for (const comb of combs(accs, accs)) {
+    const nss = Array(accs).fill().map(() => ({ ns: processInput(input), i: 0 }));
+
+    let out = 0;
+
+    for (let i = 0; i < accs; ++i) {
+      out = runCode(nss[i], [comb[i], out]).lastOut;
+    }
+
+    let sec = 1000;
+    wireloop: while (--sec > 0) {
+      for (let i = 0; i < accs; ++i) {
+        const res = runCode(nss[i], [out])
+        out = res.lastOut;
+
+        if (res.exited && i === accs - 1) {
+          break wireloop;
+        }
+      }
+    }
+
+    if (out > max) {
+      max = out;
+    }
+  }
+
+  return max;
+};
 
 const samples1 = [
   ['3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0', 43210],
@@ -172,10 +208,12 @@ const samples1 = [
   ['3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0', 65210],
 ];
 const samples2 = [
+  ['3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5', 139629729],
+  ['3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10', 18216],
 ];
 
-//test(sol1, samples1);
+// test(sol1, samples1);
 console.log(sol1(aocInput));
 
-// test(sol2, samples2);
-// console.log(sol2(aocInput));
+//test(sol2, samples2);
+console.log(sol2(aocInput));
