@@ -62,8 +62,6 @@ const runCode = (state, minputs) => {
 
   let exited = false;
 
-  let err = '';
-
   let sec = 1000000000;
   while (--sec > 0) {
     const s = ns[i].toString().split('');
@@ -100,7 +98,6 @@ const runCode = (state, minputs) => {
       ns[res] = a * b;
     } else if (code === 3) {
       if (minputs.length === 0) {
-        err = 'not enough inputs';
         break;
       }
       const [res] = params;
@@ -110,7 +107,6 @@ const runCode = (state, minputs) => {
       const v = modes[0] === 0 ? ns[res]
             : modes[0] === 1 ? res
             : ns[res];
-      console.log('outed', v, res, modes[0])
       out.push(v);
     } else if (code === 5) {
       const [cond, res] = params;
@@ -135,7 +131,6 @@ const runCode = (state, minputs) => {
       relativeBase += a;
     } else if (code === 99) {
       exited = true;
-      err = '99 called'
       break;
     } else {
       throw `unknown code ${code}`;
@@ -144,7 +139,6 @@ const runCode = (state, minputs) => {
     i += paramNum + 1;
   }
 
-  console.log({ err })
   state.i = i;
   state.relativeBase = relativeBase;
 
@@ -156,16 +150,11 @@ const sol1 = (input) => {
 };
 
 const sol2 = (input) => {
-  const state = { ns: processInput(input) }
-  const res = runCode(state, [2]);
-
-  console.log({ res, i: state.i, rb: state.relativeBase })
-
-  return res.lastOut;
+  return runCode({ ns: processInput(input) }, [2]).lastOut;
 };
 
 const samples1 = [
-  ['109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99', 'huh'],
+  //['109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99', 'huh'], this never ends
   ['1102,34915192,34915192,7,4,7,99,0', '16-digit num'],
   ['104,1125899906842624,99', 1125899906842624],
 ];
@@ -173,7 +162,7 @@ const samples2 = [
 ];
 
 //test(sol1, samples1);
-//console.log(sol1(aocInput));
+console.log(sol1(aocInput));
 
 //test(sol2, samples2);
 console.log(sol2(aocInput));
