@@ -184,7 +184,7 @@ const samples2 = [
 ];
 
 //test(sol1, samples1);
-//console.log(sol1(aocInput, 1000));
+console.log(sol1(aocInput, 1000));
 
-test(sol2, samples2);
+//test(sol2, samples2);
 //console.log(sol2(aocInput))
