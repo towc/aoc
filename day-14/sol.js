@@ -158,10 +158,8 @@ const sol2 = (input) => {
         continue;
       }
 
-      const baseCount = (reaction.amount - extra) / recipe.amount;
+      const count = Math.ceil((reaction.amount - extra) / recipe.amount);
       delextra(reaction.type);
-
-      const count = Math.ceil(baseCount);
 
       const amountMade = recipe.amount * count;
       if (amountMade > reaction.amount) {
@@ -181,12 +179,12 @@ const sol2 = (input) => {
     return needs[0].amount;
   };
 
+
   while (ore >= orePerFuel) {
     ++step;
     const famount = Math.floor(ore / orePerFuel);
 
     const oreUsed = useAmount(famount);
-    console.log(fuelProduced)
 
     ore -= oreUsed;
   }
@@ -252,11 +250,8 @@ const samples2 = [
   [samples1[3][0], 460664],
 ];
 
-// test(sol1, samples1);
-// console.log(sol1(aocInput));
+//test(sol1, samples1);
+console.log(sol1(aocInput));
 
-test(sol2, samples2);
-// 5194164 too low
-// 5194177 too high
-// not 5194172
+//test(sol2, samples2);
 console.log(sol2(aocInput));
