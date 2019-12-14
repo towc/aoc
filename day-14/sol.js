@@ -49,16 +49,16 @@ const processInput = (input) => {
       return recipe.depth;
     }
 
-    let min = Infinity;
+    let max = 0;
     for (const { type: ct } of recipe.chems) {
       const d = setDepth([ct]);
 
-      if (d < min) {
-        min = d;
+      if (d > max) {
+        max = d;
       }
     }
 
-    map[type].depth = min + 1;
+    map[type].depth = max + 1;
 
     return map[type].depth;
   };
@@ -69,6 +69,41 @@ const processInput = (input) => {
 };
 
 const sol1 = (input) => {
+  const recipes = processInput(input);
+
+  const needs = [{ amount: 1, type: 'FUEL' }];
+  const addneed = ({ amount, type }) => {
+    const r = needs.find(n => n.type === type);
+
+    if (r) {
+      r.amount += amount;
+    } else if (amount > 0) {
+      needs.push(({ amount, type }));
+    }
+  };
+  do {
+    const reaction = needs.shift();
+
+    const recipe = recipes[reaction.type];
+
+    const count = Math.ceil(reaction.amount / recipe.amount);
+
+    for (const chem of recipe.chems) {
+      const camount = chem.amount * count;
+      addneed({ type: chem.type, amount: camount });
+    }
+
+    needs.sort((a, b) => recipes[b.type].depth - recipes[a.type].depth);
+  } while (needs.length > 1);
+
+  return needs[0].amount;
+};
+
+const sol2 = (input) => {
+  const orePerFuel = sol1(input);
+  let ore = 1000000000000;
+  let fuelProduced = 0;
+
   const recipes = processInput(input);
 
   const extras = [];
@@ -91,57 +126,72 @@ const sol1 = (input) => {
       }
     }
   };
-  const getextra = ({ type }) => {
+  const getextra = (type) => {
     const r = extras.find(n => n.type === type);
     return r ? r.amount : 0;
   };
   const delextra = ({ type }) => extras.filter(n => n.type !== type);
-  const needs = [{ amount: 1, type: 'FUEL', ramount: 1 }];
-  const addneed = ({ amount, type }) => {
-    const r = needs.find(n => n.type === type);
 
-    if (r) {
-      r.amount += amount;
-    } else if (amount > 0) {
-      needs.push(({ amount, type }));
-    }
+  let step = 0;
+
+  const useAmount = (famount) => {
+    const needs = [{ amount: famount, type: 'FUEL' }];
+
+    const addneed = ({ amount, type }) => {
+      const r = needs.find(n => n.type === type);
+
+      if (r) {
+        r.amount += amount;
+      } else if (amount > 0) {
+        needs.push(({ amount, type }));
+      }
+    };
+    do {
+      const reaction = needs.shift();
+
+      const recipe = recipes[reaction.type];
+
+      const extra = getextra(reaction.type);
+
+      if (extra >= reaction.amount) {
+        remextra(reaction);
+        continue;
+      }
+
+      const baseCount = (reaction.amount - extra) / recipe.amount;
+      delextra(reaction.type);
+
+      const count = Math.ceil(baseCount);
+
+      const amountMade = recipe.amount * count;
+      if (amountMade > reaction.amount) {
+        addextra({ type: reaction.type, amount: amountMade - reaction.amount });
+      }
+
+      for (const chem of recipe.chems) {
+        const camount = chem.amount * count;
+        addneed({ type: chem.type, amount: camount });
+      }
+
+      needs.sort((a, b) => recipes[b.type].depth - recipes[a.type].depth);
+    } while (needs.length > 1);
+
+    fuelProduced += famount;
+
+    return needs[0].amount;
   };
-  do {
-    const reaction = needs.shift();
 
-    const recipe = recipes[reaction.type];
+  while (ore >= orePerFuel) {
+    ++step;
+    const famount = Math.floor(ore / orePerFuel);
 
-    const extra = getextra(reaction.type);
+    const oreUsed = useAmount(famount);
+    console.log(fuelProduced)
 
-    if (extra >= reaction.amount) {
-      remextra(reaction);
-      continue;
-    }
+    ore -= oreUsed;
+  }
 
-    const baseCount = (reaction.amount - extra) / recipe.amount;
-    delextra(reaction.type);
-
-    const count = Math.ceil(baseCount);
-    console.log(count, Math.ceil(reaction.amount / recipe.amount));
-
-    const amountMade = recipe.amount * count;
-    if (amountMade > reaction.amount) {
-      addextra({ type: reaction.type, amount: amountMade - reaction.amount });
-    }
-
-    for (const chem of recipe.chems) {
-      const camount = chem.amount * count;
-      addneed({ type: chem.type, amount: camount });
-    }
-
-    needs.sort((a, b) => recipes[b.type].depth - recipes[a.type].depth);
-    //console.log({ extras, needs })
-  } while (needs.length > 1);
-
-  return needs[0].amount;
-};
-
-const sol2 = (input) => {
+  return fuelProduced;
 };
 
 const samples1 = [
@@ -197,12 +247,16 @@ const samples1 = [
 5 BHXH, 4 VRPVC => 5 LTCX`, 2210736],
 ];
 const samples2 = [
-  [''],
+  [samples1[1][0], 82892753],
+  [samples1[2][0], 5586022],
+  [samples1[3][0], 460664],
 ];
 
-test(sol1, samples1);
-// 395099 too high
-console.log(sol1(aocInput));
+// test(sol1, samples1);
+// console.log(sol1(aocInput));
 
-// test(sol2, samples2);
-// console.log(sol2(aocInput));
+test(sol2, samples2);
+// 5194164 too low
+// 5194177 too high
+// not 5194172
+console.log(sol2(aocInput));
