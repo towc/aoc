@@ -146,7 +146,13 @@ const sol2 = (input) => {
         needs.push(({ amount, type }));
       }
     };
+
+    let sec = 10000;
     do {
+      if (needs.length === 0 || needs[0].type === 'ORE') {
+        break;
+      }
+
       const reaction = needs.shift();
 
       const recipe = recipes[reaction.type];
@@ -172,11 +178,11 @@ const sol2 = (input) => {
       }
 
       needs.sort((a, b) => recipes[b.type].depth - recipes[a.type].depth);
-    } while (needs.length > 1);
+    } while (--sec);
 
     fuelProduced += famount;
 
-    return needs[0].amount;
+    return needs.length > 0 ? needs[0].amount : 0;
   };
 
 
@@ -248,6 +254,9 @@ const samples2 = [
   [samples1[1][0], 82892753],
   [samples1[2][0], 5586022],
   [samples1[3][0], 460664],
+  [`
+9 ORE => 10 A
+3 A => 1 FUEL`, 370370370370],
 ];
 
 //test(sol1, samples1);
