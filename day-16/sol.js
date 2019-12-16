@@ -38,43 +38,32 @@ const runPhases = (input, times) => {
 
   const orig = [...input];
 
-  let zerosSkipped = 0;
-
   for(let i = 0; i < times; ++i) {
     const n = [...input];
     let nonZero = false;
     input = [];
 
-    let pZerosSkipped = zerosSkipped;
-    for(let j = zerosSkipped; j < orig.length; ++j) {
+    for(let j = 0; j < orig.length; ++j) {
 
       let res = 0;
-      for(let k = pZerosSkipped; k < orig.length; ++k) {
+      for(let k = 0; k < orig.length; ++k) {
         const coeff = pattern[Math.floor((k+1)/(j+1)) % pattern.length];
-        const num = n[k - pZerosSkipped];
+        const num = n[k];
 
         res += coeff * num;
       }
 
       const out = Math.abs(res) % 10;
-      //console.log({ i, j, zerosSkipped, out })
 
-      if (out === 0 && !nonZero) {
-        console.log({ i, j, res, nonZero, pZerosSkipped, l: orig.length })
-        zerosSkipped++;
-        continue;
-      }
-
-      nonZero = true;
       input.push(out);
     }
   }
 
-  return '0'.repeat(zerosSkipped) + input.join('');
+  return input.join('');
 }
 
 const sol1 = (input) => {
-  return runPhases(processInput(input), 100)//.substring(0,8);
+  return runPhases(processInput(input), 100).substring(0,8);
 }
 
 const sol2 = (input) => {
@@ -89,9 +78,9 @@ const samples1 = [
 const samples2 = [
 ]
 
-test(runPhases, [['12345678', 4, '01029498']])
+//test(runPhases, [['12345678', 4, '01029498']])
 
-test(sol1, samples1);
+//test(sol1, samples1);
 //console.log(sol1(aocInput));
 
 //test(sol2, samples2);
