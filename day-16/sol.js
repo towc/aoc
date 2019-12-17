@@ -67,7 +67,7 @@ const sol1 = (input) => {
 }
 
 const sol2 = (input) => {
-  
+  return runPhases(processInput(input.repeat(1000)), 100).substr(parseInt(input.substring(0,7), 10), 8);
 }
 
 const samples1 = [
@@ -76,12 +76,15 @@ const samples1 = [
   ['69317163492948606335995924319873', '52432133'],
 ];
 const samples2 = [
+  ['03036732577212944063491565474664', '84462026'],
+  ['02935109699940807407585447034323', '78725270'],
+  ['03081770884921959731165446850517', '53553731'],
 ]
 
 //test(runPhases, [['12345678', 4, '01029498']])
 
 //test(sol1, samples1);
-//console.log(sol1(aocInput));
+console.log(sol1(aocInput));
 
 //test(sol2, samples2);
 //console.log(sol2(aocInput));
