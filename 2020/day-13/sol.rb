@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-inp = `cat input`
-
 def transform_input(inp)
-  inp.split
+  inp.split.map(&:to_i)
 end
+
+inp = transform_input(`cat input`)
 
 def s1(inp)
 end
@@ -20,7 +20,7 @@ def test(fname, samples)
   samples.each_with_index do |sample, i|
     print " test #{i}: "
     res = sample.last
-    r = f.call(*sample[0..-2])
+    r = f.call(transform_input(sample.first))
     if r != res
       puts "FAIL "
       puts "   expected"
@@ -36,11 +36,13 @@ end
 # def test(*_) return 'uncomment to disable tests'; end
 
 test :s1, [
-  [],
+  [%q(
+
+), ],
 ]
 
 # test :s2, [
-#   [],
+#   [%q(), ],
 # ]
 
 # p s1(inp)

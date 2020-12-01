@@ -7,28 +7,9 @@ end
 inp = transform_input(`cat input`)
 
 def s1(inp)
-  a = 0
-  b = 0
-  inp.each.with_index do |x, i|
-    inp[i..-1].each do |y|
-      a, b = x, y if x + y == 2020
-    end
-  end
-  a * b
 end
 
 def s2(inp)
-  a = 0
-  b = 0
-  c = 0
-  inp.each.with_index do |x, i|
-    inp[i..-2].each.with_index do |y, j|
-      inp[j..-1].each.with_index do |z, k|
-        a, b, c = x, y, z if x + y + z == 2020
-      end
-    end
-  end
-  a * b * c
 end
 
 
@@ -52,29 +33,17 @@ def test(fname, samples)
   end
 end
 # }}}
-def test(*_) return 'uncomment to disable tests'; end
+# def test(*_) return 'uncomment to disable tests'; end
 
 test :s1, [
   [%q(
-1721
-979
-366
-299
-675
-1456
-    ), 514579],
+
+), ],
 ]
 
-test :s2, [
-  [%q(
-1721
-979
-366
-299
-675
-1456
-    ), 241861950],
-]
+# test :s2, [
+#   [%q(), ],
+# ]
 
-p s1(inp)
-p s2(inp)
+# p s1(inp)
+# p s2(inp)
