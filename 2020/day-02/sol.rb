@@ -1,15 +1,34 @@
 # frozen_string_literal: true
 
 def transform_input(inp)
-  inp.split.map(&:to_i)
+  inp.split("\n").map do |l|
+    range, charsep, pwd = l.split(' ')
+    low, high = range.split('-').map &:to_i
+    char = charsep[0]
+    [low, high, char, pwd]
+  end
 end
 
 inp = transform_input(`cat input`)
 
 def s1(inp)
+  inp.select do |l|
+    low, high, char, pwd = l
+
+    pwd.count(char) >= low && pwd.count(char) <= high
+  end .size
 end
 
 def s2(inp)
+  inp.select do |l|
+    x, y, char, pwd = l
+
+    x = x-1
+    y = y-1
+
+    (pwd[x] == char && pwd[y] != char) || 
+      (pwd[x] != char && pwd[y] == char)
+  end .size
 end
 
 
@@ -35,15 +54,17 @@ end
 # }}}
 # def test(*_) return 'uncomment to disable tests'; end
 
-test :s1, [
-  [%q(
-
-), ],
-]
-
-# test :s2, [
-#   [%q(), ],
+# test :s1, [
+#   [%q(1-3 a: abcde
+# 1-3 b: cdefg
+# 2-9 c: ccccccccc), 2],
 # ]
 
-# p s1(inp)
-# p s2(inp)
+# test :s2, [
+#   [%q(1-3 a: abcde
+# 1-3 b: cdefg
+# 2-9 c: ccccccccc), 1],
+# ]
+
+p s1(inp)
+p s2(inp)
